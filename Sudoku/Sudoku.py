@@ -144,6 +144,7 @@ def puzzle2config(p):
 
 
 # remove possible configurations of digit d by existing puzzle states of all digits
+# confs is changed while puzzs is not
 def removeConfigs(d, confs, puzzs):
     anyRemoved = False
     for c in confs[d]: # loop over all configurations of d
@@ -160,38 +161,39 @@ def removeConfigs(d, confs, puzzs):
                         break
             if removed:
                 break                    
-    return anyRemoved, confs
+    return anyRemoved
 
 
 # eliminate possbilities in configurations based on puzzle states
+# confs is changed while puzzs is not
 def loopRemoveConfigs(confs, puzzs):
     i = 0
-    moreWork = True
-    while moreWork:
-        go, confs = removeConfigs(i, confs, puzzs)
+    while removeConfigs(i, confs, puzzs):
         i = (i+1) % 9
-    return confs
 
 
 # use DFS to find the solution and record it in the global variable
 solutions = []
-def fillingSearch(confs, puzzs): 
+def fillingSearch(confsIn, puzzsIn): 
     global solutions
-    if all(map(lambda x: len(x)==1, confs)): # a solution is found
-        solutions.append(np.squeeze(confs))
+    if all(map(lambda x: len(x)==1, confsIn)): # a solution is found
+        solutions.append(np.squeeze(confsIn))
         return
     # find the (first) digit with fewest possibilities (>1)
-    minL = max(map(len, confs)) + 1
+    minL = max(map(len, confsIn)) + 1
     sd = -1
     for i in range(9):
-        Li = len(confs[i])
+        Li = len(confsIn[i])
         if Li > 1 and Li < minL:
             minL = Li
             sd = i
-    for sc in confs[sd]:
+    for sc in confsIn[sd]: # search into each configuration of this digit
+        puzzs = copy.deepcopy(puzzsIn) # puzzle will be updated locally
+        confs = copy.deepcopy(confsIn) # configs will be updated locally
         sp = config2puzzle(sc)
-        puzzs[sd] = sp # update the puzzle locally
-        fillingSearch(loopRemoveConfigs(confs, puzzs), puzzs) # remove configs and send to next-level search
+        puzzs[sd] = sp # update the puzzle
+        loopRemoveConfigs(confs, puzzs) # remove configs based on new puzzle
+        fillingSearch(confs, puzzs) # next-level search
 
 
 # initialize possible configurations of the 9 digits (6^6 for each)
@@ -220,7 +222,7 @@ for row in range(9):
 f.close()
 
 # main loop: kill most configurations based on initial input
-Configs = loopRemoveConfigs(Configs, Puzzles)
+loopRemoveConfigs(Configs, Puzzles)
 
 # search by trying filling out digits
 fillingSearch(Configs, Puzzles)
