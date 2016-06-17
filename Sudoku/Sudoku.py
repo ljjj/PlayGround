@@ -168,16 +168,21 @@ def removeConfigs(d, confs, puzzs):
 # confs is changed while puzzs is not
 def loopRemoveConfigs(confs, puzzs):
     i = 0
-    while removeConfigs(i, confs, puzzs):
+    keepLooping = [True]*9
+    while any(keepLooping):
+        keepLooping[i] = removeConfigs(i, confs, puzzs)
         i = (i+1) % 9
 
 
 # use DFS to find the solution and record it in the global variable
-solutions = []
-def fillingSearch(confsIn, puzzsIn): 
-    global solutions
-    if all(map(lambda x: len(x)==1, confsIn)): # a solution is found
-        solutions.append(np.squeeze(confsIn))
+def fillingSearch(confsIn, puzzsIn):
+    global Results
+    if any(map(lambda x: len(x)==0, confsIn)): # no solution
+        return
+    if all(map(lambda x: len(x)==1, confsIn)): # a potential solution is found
+        result = presentSolution(np.squeeze(confsIn))
+        if all(result.flatten()): # no conflicts in configuration states
+            Results.append(result)
         return
     # find the (first) digit with fewest possibilities (>1)
     minL = max(map(len, confsIn)) + 1
@@ -196,50 +201,54 @@ def fillingSearch(confsIn, puzzsIn):
         fillingSearch(confs, puzzs) # next-level search
 
 
-# initialize possible configurations of the 9 digits (6^6 for each)
-Configs = [range(6**6) for _ in range(9)]
-
-# initialize puzzle states
-Puzzles = [[-1 for _ in range(9)] for _ in range(9)]
-
-# take input of the puzzle in the form of 9 lines of numbers
-# the nubmers are separated by white spaces where empty entries are denoted with dots
-testNo = 1
-f = open('test'+str(testNo)+'.txt','r')
-for row in range(9):
-    line = f.readline()
-    # line = raw_input()
-    line = line.split()
-    if len(line) != 9:
-        raise Exception("each line should have 9 entries")
-    for col in range(9):
-        entry = line[col]
-        if entry not in map(str,range(1,10))+['.']:
-            raise Exception("each entry should either be a digit or a dot")
-        if entry != '.': # translate input to (incomplete) puzzle states
-            entry = int(entry) - 1
-            Puzzles[entry][(row//3)*3 + col//3] = (row%3)*3 + col%3
-f.close()
-
-# main loop: kill most configurations based on initial input
-loopRemoveConfigs(Configs, Puzzles)
-
-# search by trying filling out digits
-fillingSearch(Configs, Puzzles)
-
-# save solutions
-import pickle
-f = open('Sudoku-test'+str(testNo)+'.pckl','wb')
-pickle.dump(solutions,f)
-f.close()
-
-f = open('Sudoku-test'+str(testNo)+'.txt','w')
-for sol in solutions:
-    result = np.zeros((N,N), dtype = int)
+# show solution on the Sudoku grid, assuming sol is a list of 9 numbers of configuration states
+def presentSolution(sol):
+    result = np.zeros((9,9), dtype = int)
     for i in range(9):
         puzz = config2puzzle(sol[i]) # convert solution (as configuration) to puzzle states
         for j in range(9): # convert puzzle states to apparent views
-            result[(j//3)*3 + puzz[j]//3][(j%3)*3 + puzz[j]%3] = i
-    f.write(str(result))
-    f.write('\n')
-f.close()
+            result[(j//3)*3 + puzz[j]//3][(j%3)*3 + puzz[j]%3] = i + 1
+    return result
+
+
+# initialization
+Configs = [range(6**6) for _ in range(9)]
+Puzzles = [[-1 for _ in range(9)] for _ in range(9)]
+Results = []
+
+# take input of the puzzle in the form of 9 lines of numbers
+# the nubmers are separated by white spaces where empty entries are denoted with dots
+for testNo in range(4):
+    f = open('test'+str(testNo)+'.txt','r')
+    for row in range(9):
+        line = f.readline()
+        # line = raw_input()
+        line = line.split()
+        if len(line) != 9:
+            raise Exception("each line should have 9 entries")
+        for col in range(9):
+            entry = line[col]
+            if entry not in map(str,range(1,10))+['.']:
+                raise Exception("each entry should either be a digit or a dot")
+            if entry != '.': # translate input to (incomplete) puzzle states
+                entry = int(entry) - 1
+                Puzzles[entry][(row//3)*3 + col//3] = (row%3)*3 + col%3
+    f.close()
+
+    # main loop: kill most configurations based on initial input
+    loopRemoveConfigs(Configs, Puzzles)
+
+    # search by trying filling out digits
+    fillingSearch(Configs, Puzzles)
+
+    # save solutions
+    import pickle
+    f = open('solution'+str(testNo)+'.pckl','wb')
+    pickle.dump(Results,f)
+    f.close()
+
+    f = open('solution'+str(testNo)+'.txt','w')
+    for res in Results:
+        f.write(str(res))
+        f.write('\n')
+    f.close()
