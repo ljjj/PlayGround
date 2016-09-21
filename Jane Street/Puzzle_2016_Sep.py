@@ -61,14 +61,11 @@ def findMove(m, chessboard, Q, K, R, B, N):
         rp = np.prod(rp[np.where(rp > 0)] % 10)
         cp = chessboard[:,qnext[1]]
         cp = np.prod(cp[np.where(cp > 0)] % 10)
-        if rp == 0 or cp == 0:
-            print(chessboard)
-            print(qnext)
-            print(m)
         # check new products are factors
-        if rprod[qnext[0]] % rp != 0 or cprod[qnext[1]] % cp != 0:
-            chessboard[qnext] = -1 # remove tentative move
-            continue
+        if m <= 7:
+            if rprod[qnext[0]] % rp != 0 or cprod[qnext[1]] % cp != 0:
+                chessboard[qnext] = -1 # remove tentative move
+                continue
         # places under attack
         attacked_q = Qmove(qnext)
         
@@ -88,9 +85,10 @@ def findMove(m, chessboard, Q, K, R, B, N):
             cp = chessboard[:,knext[1]]
             cp = np.prod(cp[np.where(cp > 0)] % 10)
             # check new products are factors
-            if rprod[knext[0]] % rp != 0 or cprod[knext[1]] % cp != 0:
-                chessboard[knext] = -1 # remove tentative move
-                continue
+            if m <= 7:
+                if rprod[knext[0]] % rp != 0 or cprod[knext[1]] % cp != 0:
+                    chessboard[knext] = -1 # remove tentative move
+                    continue
             
             for ri in range(len(Rnext[0])):
                 rnext = (Rnext[0][ri], Rnext[1][ri])
@@ -108,9 +106,10 @@ def findMove(m, chessboard, Q, K, R, B, N):
                 cp = chessboard[:,rnext[1]]
                 cp = np.prod(cp[np.where(cp > 0)] % 10)
                 # check new products are factors
-                if rprod[rnext[0]] % rp != 0 or cprod[rnext[1]] % cp != 0:
-                    chessboard[rnext] = -1 # remove tentative move
-                    continue
+                if m <= 7:
+                    if rprod[rnext[0]] % rp != 0 or cprod[rnext[1]] % cp != 0:
+                        chessboard[rnext] = -1 # remove tentative move
+                        continue
                 
                 for bi in range(len(Bnext[0])):
                     bnext = (Bnext[0][bi], Bnext[1][bi])
@@ -128,9 +127,10 @@ def findMove(m, chessboard, Q, K, R, B, N):
                     cp = chessboard[:,bnext[1]]
                     cp = np.prod(cp[np.where(cp > 0)] % 10)
                     # check new products are factors
-                    if rprod[bnext[0]] % rp != 0 or cprod[bnext[1]] % cp != 0:
-                        chessboard[bnext] = -1 # remove tentative move
-                        continue
+                    if m <= 7:
+                        if rprod[bnext[0]] % rp != 0 or cprod[bnext[1]] % cp != 0:
+                            chessboard[bnext] = -1 # remove tentative move
+                            continue
                     
                     for ni in range(len(Nnext[0])):
                         nnext = (Nnext[0][ni], Nnext[1][ni])
@@ -148,9 +148,10 @@ def findMove(m, chessboard, Q, K, R, B, N):
                         cp = chessboard[:,nnext[1]]
                         cp = np.prod(cp[np.where(cp > 0)] % 10)
                         # check new products are factors
-                        if rprod[nnext[0]] % rp != 0 or cprod[nnext[1]] % cp != 0:
-                            chessboard[nnext] = -1 # remove tentative move
-                            continue
+                        if m <= 7:
+                            if rprod[nnext[0]] % rp != 0 or cprod[nnext[1]] % cp != 0:
+                                chessboard[nnext] = -1 # remove tentative move
+                                continue
                         
                         moveIt(m, chessboard, Q, K, R, B, N,
                                qnext, knext, rnext, bnext, nnext)
@@ -176,10 +177,6 @@ def moveIt(m, chessboard, Q, K, R, B, N,
     
     # find products
     rprodcurr, cprodcurr = boardProd(chessboard, Q, K, R, B, N)
-    
-    if m > 5:
-        print(rprodcurr, cprodcurr)
-        print(chessboard)
     
     # start searching the next depth
     if m < 8:
