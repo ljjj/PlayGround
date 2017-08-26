@@ -1,1 +1,2 @@
 Get-ChildItem -Filter "*current*" -Recurse | Rename-Item -NewName {$_.name -replace 'current','old'}
+dir | Rename-Item -NewName {$_.Directory.Name + " " + $_.Name}
