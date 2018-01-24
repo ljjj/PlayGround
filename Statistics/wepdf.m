@@ -1,5 +1,5 @@
 function [f, x] = wepdf(y, binEdges, w)
-% weighted empirical PDF at specified bin centres
+% weighted empirical PDF at specified bin edges
 
     N = numel(y);
     if ~exist('w', 'var')
@@ -30,6 +30,7 @@ function [f, x] = wepdf(y, binEdges, w)
         end
     end
     f(end) = f(end) + numel(y(j:end));
-    f = f/sum(f); % normalize pdf
+    binCtrs = (binEdges(1:end-1) + binEdges(2:end))/2;
+    f = f/trapz(binCtrs, f); % normalize pdf
     x = (binEdges(1:end-1) + binEdges(2:end))/2;
 end
