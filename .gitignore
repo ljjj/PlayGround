@@ -1,7 +1,11 @@
-*.nb
 *.pdf
 *.pckl
+*.mat
 *.png
+*.jpg
+*.fig
+*.svg
+*.eps
 
 # Windows image file caches
 Thumbs.db

@@ -1,0 +1,11 @@
+    if speed_ind(i) == 5
+%         wave_end_speed_l = max(mus(i,4) - sigmas(i,4), mus(i,3) + 3*sigmas(i,3));
+%         wave_end_speed_h = mus(i,4);
+        ii = 4;
+        si = 0;
+    else
+%         wave_end_speed_l = mus(i,1);
+%         wave_end_speed_h = mus(i,1) + sigmas(i,1);
+        ii = 1;
+        si = 0;
+    end
