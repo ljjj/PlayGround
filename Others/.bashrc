@@ -5,6 +5,9 @@ if [ -f /etc/bashrc ]; then
         . /etc/bashrc
 fi
 
+export PROMPT_COMMAND='exitstatus=$? && echo -ne "\033]0;$(basename `pwd`)|${host}\007"'
+export HISTTIMEFORMAT="%F %T "
+
 # User specific aliases and functions
 alias today='date +%Y%m%d'
 alias less='less -R'
@@ -26,9 +29,17 @@ alias ltrt='ls -ltr | tail'
 alias df='df -h'
 alias fs='du -sh'
 alias gall='git add -A'
+alias gau='git add -u'
+alias gad='git add .'
+alias gamend='git commit --amend'
 alias gst='git status'
 alias gch='git checkout'
+alias gchb='git checkout -b'
+alias gchm='git checkout master'
+alias gr='git rebase'
+alias grm='git rebase master'
 alias gri='git rebase -i'
+alias grim='git rebase -i master'
 alias grc='git rebase --continue'
 alias gcc='git cherry-pick --continue'
 alias gbd='git branch -D'
@@ -36,4 +47,7 @@ alias gdh='git diff HEAD'
 alias gdh1='git diff HEAD~'
 alias gname='git diff-tree --no-commit-id --name-only -r'
 alias hsha='git log | head -n1 | cut -d" " -f2'
+alias gsp='git stash pop'
+alias gsl='git stash list'
+alias gss='git stash show -p'
 alias starwars='telnet towel.blinkenlights.nl'
